@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: usercrud
-    env: docker
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/*.jar
-    plan: free
-    branch: main
