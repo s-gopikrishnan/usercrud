@@ -1,17 +1,22 @@
-# Start from an OpenJDK image
-FROM eclipse-temurin:17-jdk-jammy
+# Use a base image with JDK 17 and Maven installed
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 # Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and source files
+# Copy everything into the container
 COPY . .
 
-# Package the app
-RUN ./mvnw clean package -DskipTests
+# Build the application
+RUN mvn clean package -DskipTests
 
-# Expose port 8080
-EXPOSE 8080
+# Use a lightweight image to run the app
+FROM eclipse-temurin:17-jdk
 
-# Run the JAR
-CMD ["java", "-jar", "target/usercrud-0.0.1-SNAPSHOT.jar"]
+WORKDIR /app
+
+# Copy the jar file from the build stage
+COPY --from=build /app/target/usercrud-0.0.1-SNAPSHOT.jar app.jar
+
+# Run the Spring Boot app
+CMD ["java", "-jar", "app.jar"]
